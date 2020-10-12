@@ -1,9 +1,14 @@
+{% load blog_tags %}
 {% load static %}
+
+
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>{% block title %}{% endblock %}</title>
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
     <link href="{% static "css/blog.css" %}" rel="stylesheet">
 </head>
 
@@ -14,11 +19,21 @@
     </div>
 
     <div id="sidebar">
-        <h2>My blog</h2>
-        <p>This is my blog.</p>
-        <a href="{% url "blog:post_list" %}">homepage</a>
-        <p></p>
+        <h2>我的博客</h2>
+        <p>欢迎来到我的博客. 目前我已经发表 {% total_posts %} 篇文章。</p>
+        <p>
+            <a href="{% url "blog:post_feed" %}">RSS订阅</a>
+        </p>
+        
+        <h3>最新文章</h3>
+        <p>{% show_latest_posts %}</p>
+        
+        <h3>热门文章</h3> 
+        <p>{% show_most_commented %}</p>
+
+        <h2>
+            <a href="{% url "blog:post_list" %}">主页</a>
+        </h2>
     </div>
 </body>
-
 </html>

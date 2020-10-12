@@ -1,14 +1,21 @@
-from taggit.managers import TaggableManager
-
 from django.contrib.auth.models import User
-from django.utils import timezone
-from django.urls import reverse
 from django.db import models
+from django.urls import reverse
+from django.utils import timezone
+
+from taggit.managers import TaggableManager
 
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(status='published')
+        return super(PublishedManager, self).get_queryset()\
+                                            .filter(status='published') 
+
+
+class DraftManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()\
+                      .filter(status='draft') 
 
 
 class Post(models.Model):
@@ -18,7 +25,7 @@ class Post(models.Model):
     )
     title = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250,
-                            unique_for_date='publish')
+                            unique_for_date='publish') 
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='blog_posts')
@@ -29,12 +36,14 @@ class Post(models.Model):
     status = models.CharField(max_length=10,
                               choices=STATUS_CHOICES,
                               default='draft')
-    objects = models.Manager()
-    published = PublishedManager()
     tags = TaggableManager()
 
+    objects = models.Manager()
+    published = PublishedManager()
+    draft = DraftManager()
+
     class Meta:
-        ordering = ('-publish',)    #!tuple
+        ordering = ('-publish',)
 
     def __str__(self):
         return self.title
@@ -47,7 +56,6 @@ class Post(models.Model):
                              self.slug])
 
 
-
 class Comment(models.Model):
     post = models.ForeignKey(Post,
                              on_delete=models.CASCADE,
@@ -55,12 +63,12 @@ class Comment(models.Model):
     name = models.CharField(max_length=80)
     email = models.EmailField()
     body = models.TextField()
-    created = models.DateField(auto_now_add=True)
-    updated = models.DateField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
-
+    
     class Meta:
         ordering = ('created',)
-
+        
     def __str__(self):
-        return "comment by {} on {}".format(self.name, self.post)
+        return f'Comment by {self.name} on {self.post}'
